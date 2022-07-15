@@ -1,0 +1,396 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mx.cvp.management.information.dao.VehicleDao" >
+    <!--车辆数据库和实体类属性-->
+    <resultMap id="vehicleList" type="com.mx.cvp.management.information.dto.VehicleDto">
+        <id column="id" property="id"/>
+        <id column="vehicle_type" property="vehicleType"/>
+        <id column="vehicle_team_id" property="vehicleTeamId"/>
+        <id column="plate_number" property="plateNumber"/>
+        <id column="vehicle_name" property="vehicleName"/>
+        <id column="vehicle_plate_color" property="vehiclePlateColor"/>
+        <id column="terminal_identification" property="terminalIdentification"/>
+        <id column="sim_number" property="simNumber"/>
+        <id column="terminal_number" property="terminalNumber"/>
+        <id column="driver_id" property="driverId"/>
+        <id column="link_time" property="linkTime"/>
+        <id column="install_time" property="installTime"/>
+        <id column="create_user" property="createUser"/>
+        <id column="explain" property="explain"/>
+        <id column="remarks" property="remarks"/>
+        <id column="vehicle_condition" property="condition"/>
+    </resultMap>
+
+    <!--单个新增车辆-->
+    <insert id="addVehicle" parameterType="com.mx.cvp.management.information.dto.VehicleDto" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO
+            t_vehicle_info
+            (`plate_number`,
+             `vehicle_name`,
+             `vehicle_team_id`,
+             `vehicle_plate_color`,
+             `terminal_identification`,
+             `driver_id`,
+             `remarks`,
+             `explain`,
+             `vehicle_type`,
+             `vehicle_business`,
+             `create_time`)
+        VALUES
+            (#{plateNumber},
+            #{vehicleName},
+            #{vehicleTeamId},
+            #{vehiclePlateColor},
+            #{terminalIdentification},
+            #{driverId},
+            #{remarks},
+            #{explain},
+            #{vehicleType},
+            #{vehicleBusiness},
+            NOW())
+        <selectKey resultType="java.lang.Integer" order="AFTER" keyProperty="id">
+            SELECT LAST_INSERT_ID()
+        </selectKey>
+    </insert>
+
+    <insert id="addVehicleBaseProperty" parameterType="com.mx.cvp.management.information.dto.VehicleDto">
+        insert into
+            t_vehicle_base_property
+            (id,
+             max_tonne,
+             max_person,
+             initial_mileage,
+             initial_time,
+             mileage_update,
+             install_area,
+             vin,
+             install_time,
+             vehicle_color)
+        values
+            (#{id},
+             #{maxTonne},
+             #{maxPerson},
+             #{initialMileage},
+             #{initialTime},
+             #{mileageUpdate},
+             #{installArea},
+             #{vin},
+             #{installTime},
+             #{vehicleColor})
+    </insert>
+
+    <insert id="addVehicleOtherProperty" parameterType="com.mx.cvp.management.information.dto.VehicleDto">
+        insert into
+            t_vehicle_other_property
+            (id,
+             vehicle_frame,
+             vehicle_domicile,
+             business_name,
+             business_phone)
+        values
+            (#{id},
+             #{vehicleFrame},
+             #{vehicleDomicile},
+             #{businessName},
+             #{businessPhone})
+    </insert>
+
+    <!--批量新增车辆-->
+    <insert id="addVehicles" parameterType="com.mx.cvp.management.information.dto.VehicleDto">
+        INSERT INTO
+            t_vehicle_info
+            (vehicle_team_id,
+             vehicle_name,
+             plate_number,
+             vehicle_plate_color,
+             sim_number,
+             terminal_number,
+             terminal_identification,
+             create_time,
+             update_time)
+        VALUES
+            (#{vehicleTeamId},
+            #{vehicleName},
+            #{plateNumber},
+            #{vehiclePlateColor},
+            #{simNumber},
+            #{terminalNumber},
+            #{terminalIdentification},
+            NOW(),
+            NOW())
+    </insert>
+
+    <!--修改车辆信息主表-->
+    <update id="updateVehicle" parameterType="com.mx.cvp.management.information.dto.VehicleDto">
+        update
+            t_vehicle_info
+        set
+            <if test="vehicleTeamId !=null">
+                vehicle_team_id = #{vehicleTeamId},
+            </if>
+            <if test="plateNumber !=null">
+                plate_number = #{plateNumber},
+            </if>
+            <if test="vehicleName !=null">
+                vehicle_name = #{vehicleName},
+            </if>
+            <if test="vehiclePlateColor !=null">
+                vehicle_plate_color = #{vehiclePlateColor},
+            </if>
+            <if test="terminalIdentification !=null">
+                terminal_identification = #{terminalIdentification},
+            </if>
+            <if test="driverId !=null">
+                driver_id = #{driverId},
+            </if>
+            <if test="remarks !=null">
+                `remarks` = #{remarks},
+            </if>
+            <if test="explain !=null">
+                `explain` = #{explain},
+            </if>
+            <if test="vehicleType !=null">
+                vehicle_type = #{vehicleType},
+            </if>
+            <if test="vehicleBusiness !=null">
+                vehicle_business = #{vehicleBusiness}
+            </if>
+        where
+            `id` = #{vehicleId}
+    </update>
+
+    <!--修改车辆基本属性表    -->
+    <update id="updateVehicleBaseProperty" parameterType="com.mx.cvp.management.information.dto.VehicleDto">
+        update
+            t_vehicle_base_property
+        set
+            <if test="maxTonne !=null">
+                max_tonne = #{maxTonne},
+            </if>
+            <if test="maxPerson !=null">
+                max_person = #{maxPerson},
+            </if>
+            <if test="initialMileage !=null">
+                initial_mileage = #{initialMileage},
+            </if>
+            <if test="initialTime !=null">
+                initial_time = #{initialTime},
+            </if>
+            <if test="mileageUpdate !=null">
+                mileage_update = #{mileageUpdate},
+            </if>
+            <if test="installArea !=null">
+                install_area = #{installArea},
+            </if>
+            <if test="vin !=null">
+                vin = #{vin},
+            </if>
+            <if test="installTime !=null">
+                install_time = #{installTime},
+            </if>
+            <if test="vehicleColor !=null">
+                vehicle_color = #{vehicleColor}
+            </if>
+        where
+            `id` = #{vehicleId}
+    </update>
+
+    <!--修改车辆其它属性表    -->
+    <update id="updateVehicleOtherProperty" parameterType="com.mx.cvp.management.information.dto.VehicleDto">
+        update
+            t_vehicle_other_property
+        set
+            <if test="vehicleFrame !=null">
+                vehicle_frame = #{vehicleFrame},
+            </if>
+            <if test="vehicleDomicile !=null">
+                vehicle_domicile = #{vehicleDomicile},
+            </if>
+            <if test="businessName !=null">
+                business_name = #{businessName},
+            </if>
+            <if test="businessPhone !=null">
+                business_phone = #{businessPhone}
+            </if>
+        where
+            `id` = #{vehicleId}
+    </update>
+
+    <!--批量修改车辆信息-->
+    <update id="updateVehicles" parameterType="com.mx.cvp.management.information.dto.VehicleDto">
+        update
+            t_vehicle_info
+        set
+        <if test="vehicleTeamId !=null">
+            vehicle_team_id = #{vehicleTeamId},
+        </if>
+        <if test="vehiclePlateColor !=null">
+            vehicle_plate_color = #{vehiclePlateColor},
+        </if>
+        <if test="linkTime !=null">
+            link_time = #{linkTime},
+        </if>
+        <if test="installTime !=null">
+            install_time = #{installTime},
+        </if>
+        <if test="explain !=null">
+            `explain` = #{explain}
+        </if>
+        where
+            id = #{vehicleId}
+    </update>
+
+    <!--获取车辆列表-->
+    <select id="getVehicleList" resultMap="vehicleList" resultType="com.mx.cvp.management.information.dto.VehicleDto">
+        select
+            id,
+            vehicle_type,
+            vehicle_team_id,
+            plate_number,
+            vehicle_name,
+            vehicle_plate_color,
+            terminal_identification,
+            sim_number,
+            terminal_number,
+            driver_id,
+            link_time,
+            install_time,
+            create_user,
+            `explain`,
+            remarks
+        from
+            t_vehicle_info
+        where
+            vehicle_team_id = #{vehicleTeamId} and
+            `vehicle_condition` = #{condition}
+        limit #{page},#{rows};
+    </select>
+
+    <!--获取车辆列表总数    -->
+    <select id="getVehicleListTotal" resultType="integer">
+        select
+            COUNT(*)
+        from
+            t_vehicle_info
+        where
+            vehicle_team_id = #{vehicleTeamId} and
+            `vehicle_condition` = #{condition}
+    </select>
+
+    <!--查询车辆    -->
+    <select id="searchVehicle" resultMap="vehicleList" resultType="com.mx.cvp.management.information.dto.VehicleDto">
+        select
+            `t_vehicle_info`.id,
+            `vehicle_type`,
+            `t_vehicle_info`.vehicle_team_id,
+            `plate_number`,
+            `vehicle_name`,
+            `vehicle_plate_color`,
+            `terminal_identification`,
+            `sim_number`,
+            `terminal_number`,
+            `driver_id`,
+            `link_time`,
+            `install_time`,
+            `create_user`,
+            `explain`,
+            `remarks`
+        from
+            t_vehicle_info,
+            `t_driver_info`
+        where
+            <if test="plateNumber !=null">
+                `plate_number` LIKE CONCAT('%', #{plateNumber , jdbcType=VARCHAR}, '%') and
+            </if>
+            <if test="vehicleName !=null">
+                `vehicle_name` LIKE CONCAT('%', #{vehicleName , jdbcType=VARCHAR}, '%') and
+            </if>
+            <if test="terminalIdentification !=null">
+                `terminal_identification` LIKE CONCAT('%', #{terminalIdentification , jdbcType=VARCHAR}, '%') and
+            </if>
+            <if test="terminalNumber !=null">
+                `terminal_number` LIKE CONCAT('%', #{terminalNumber , jdbcType=VARCHAR}, '%') and
+            </if>
+            <if test="simNumber !=null">
+                `sim_number` LIKE CONCAT('%', #{simNumber , jdbcType=VARCHAR}, '%') and
+            </if>
+            <if test="driverName !=null">
+                `driver_name` LIKE CONCAT('%', #{driverName , jdbcType=VARCHAR}, '%') and
+            </if>
+            <if test="createUser !=null">
+                `create_user` LIKE CONCAT('%', #{createUser , jdbcType=VARCHAR}, '%') and
+            </if>
+            <if test="minLinkTime !=null">
+                #{minLinkTime} &lt;= `link_time` and
+            </if>
+            <if test="maxLinkTime !=null">
+                #{maxLinkTime} &gt;= `link_time` and
+            </if>
+            <if test="minInstallTime !=null">
+                #{minInstallTime} &lt;= `link_time` and
+            </if>
+            <if test="maxInstallTime !=null">
+                #{maxInstallTime} &gt;= `link_time` and
+            </if>
+            driver_id = t_driver_info.id and
+            is_delete = 0 and
+            `vehicle_condition` = #{condition}
+        limit #{page},#{rows};
+    </select>
+
+    <!--获取查询车辆总数    -->
+    <select id="getSearchVehicleTotal" resultType="integer">
+        select
+            COUNT(*)
+        from
+            `t_vehicle_info`,
+            `t_driver_info`
+        where
+            <if test="plateNumber !=null">
+                `plate_number` LIKE CONCAT('%', #{plateNumber , jdbcType=VARCHAR}, '%') and
+            </if>
+            <if test="vehicleName !=null">
+                `vehicle_name` LIKE CONCAT('%', #{vehicleName , jdbcType=VARCHAR}, '%') and
+            </if>
+            <if test="terminalIdentification !=null">
+                `terminal_identification` LIKE CONCAT('%', #{terminalIdentification , jdbcType=VARCHAR}, '%') and
+            </if>
+            <if test="terminalNumber !=null">
+                `terminal_number` LIKE CONCAT('%', #{terminalNumber , jdbcType=VARCHAR}, '%') and
+            </if>
+            <if test="simNumber !=null">
+                `sim_number` LIKE CONCAT('%', #{simNumber , jdbcType=VARCHAR}, '%') and
+            </if>
+            <if test="driverName !=null">
+                `driver_name` LIKE CONCAT('%', #{driverName , jdbcType=VARCHAR}, '%') and
+            </if>
+            <if test="createUser !=null">
+                `create_user` LIKE CONCAT('%', #{createUser , jdbcType=VARCHAR}, '%') and
+            </if>
+            <if test="minLinkTime !=null">
+                #{minLinkTime} &lt;= `link_time` and
+            </if>
+            <if test="maxLinkTime !=null">
+                #{maxLinkTime} &gt;= `link_time` and
+            </if>
+            <if test="minInstallTime !=null">
+                #{minInstallTime} &lt;= `link_time` and
+            </if>
+            <if test="maxInstallTime !=null">
+                #{maxInstallTime} &gt;= `link_time` and
+            </if>
+            driver_id = t_driver_info.id and
+            is_delete = 0 and
+            `vehicle_condition` = #{condition}
+    </select>
+
+    <!--更新车辆状态    -->
+    <update id="updateVehicleCondition" parameterType="com.mx.cvp.management.information.dto.VehicleDto">
+        update
+            `t_vehicle_info`
+        set
+            vehicle_condition = #{condition}
+        where
+            id = #{id}
+    </update>
+</mapper>

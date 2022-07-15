@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mx.cvp.management.information.dao.VehicleTeamDao" >
+    <!--    更新车队信息-->
+    <update id="updateVehicleTeam" parameterType="com.mx.cvp.management.information.dto.VehicleTeamDto">
+        update
+            t_vehicle_team_info
+        set
+            name = #{name},
+            parent_team_id = #{parentTeamId},
+            type = #{type},
+            vehicle_capacity = #{vehicleCapacity},
+            contact_name = #{contactName},
+            contact_phone = #{contactPhone},
+            remark = #{remark},
+            update_time = NOW()
+        where
+            id = #{id}
+    </update>
+
+    <!--新增车队 然后设置sort-->
+    <insert id="addVehicleTeam" parameterType="com.mx.cvp.management.information.dto.VehicleTeamDto">
+        INSERT INTO
+            t_vehicle_team_info
+            (name,
+            parent_team_id,
+            type,
+            sort,
+            vehicle_capacity,
+            contact_name,
+            contact_phone,
+            remark,
+            create_time)
+        value
+            (#{name},
+            #{parentTeamId},
+            #{type},
+            #{sort}+1,
+            #{vehicleCapacity},
+            #{contactName},
+            #{contactPhone},
+            #{remark},
+            NOW())
+    </insert>
+
+    <select id="checkSort" parameterType="java.lang.Integer" resultType="Integer">
+        SELECT COUNT(id)
+        FROM t_vehicle_team_info
+        WHERE parent_team_id = #{parentTeamId}
+    </select>
+
+    <!--删除车队-->
+    <update id="deleteVehicleTeam" parameterType="java.lang.Integer">
+        update t_vehicle_team_info
+        set is_delete = 1
+        Where id in <foreach collection="ids" item="id" index="index" open="(" separator="," close=")">#{id}</foreach>
+    </update>
+
+    <!--    车队模糊查询-->
+    <resultMap id="vehicleTeamList" type="com.mx.cvp.management.information.dto.VehicleTeamDto">
+        <id column="id" property="id"/>
+        <id column="name" property="name"/>
+        <id column="parent_team_id" property="parentTeamId"/>
+        <id column="normalVehicle" property="normalVehicle"/>
+        <id column="disabledVehicle" property="disabledVehicle"/>
+        <id column="recycledVehicle" property="recycledVehicle"/>
+    </resultMap>
+
+    <select id="searchVehicleTeam" parameterType="java.lang.String" resultMap="vehicleTeamList">
+        SELECT
+            id,
+            name,
+            parent_team_id,
+            (select COUNT(id) FROM t_vehicle_info WHERE vehicle_team_id = #{id} AND vehicle_type = 1) as normalVehicle,
+            (select COUNT(id) FROM t_vehicle_info WHERE vehicle_team_id = #{id} AND vehicle_type = 2) as disabledVehicle,
+            (select COUNT(id) FROM t_vehicle_info WHERE vehicle_team_id = #{id} AND vehicle_type = 3) as recycledVehicle
+        FROM
+            t_vehicle_team_info
+        WHERE
+             `name` LIKE CONCAT('%', #{name},'%') and is_delete = 0
+    </select>
+
+    <!--    获取车队详情-->
+    <resultMap id="vehicleTeamDetail" type="com.mx.cvp.management.information.dto.VehicleTeamDto">
+        <id column="id" property="id"/>
+        <id column="name" property="name"/>
+        <id column="parent_team_id" property="parentTeamId"/>
+        <id column="type" property="type"/>
+        <id column="vehicle_capacity" property="vehicleCapacity"/>
+        <id column="contact_name" property="contactName"/>
+        <id column="contact_phone" property="contactPhone"/>
+        <id column="remark" property="remark"/>
+    </resultMap>
+
+    <select id="getVehicleTeamDetail" resultMap="vehicleTeamDetail">
+        SELECT
+            id,
+            name,
+            parent_team_id,
+            type,
+            vehicle_capacity,
+            contact_name,
+            contact_phone,
+            remark
+        FROM
+            t_vehicle_team_info
+        WHERE
+            id = #{id} AND is_delete = 0
+    </select>
+
+    <!--    获取车辆列表-->
+    <resultMap id="returnVehicleTeamList" type="com.mx.cvp.management.information.dto.VehicleTeamDto">
+        <id column="id" property="id"/>
+        <id column="name" property="name"/>
+        <!--        <id column="COUNT(vehicle_team_id)" property="COUNT(vehicle_team_id)"/>-->
+        <!--        <id column="disabled_vehicle" property="disabledVehicle"/>-->
+        <!--        <id column="recycled_vehicle" property="recycledVehicle"/>-->
+        <id column="parent_team_id" property="parentTeamId"/>
+    </resultMap>
+    <select id="getVehicleTeamList" resultMap="returnVehicleTeamList">
+        select
+            id,
+            name,
+            parent_team_id,
+            (select COUNT(id) FROM t_vehicle_info WHERE vehicle_team_id = #{id} AND vehicle_type = 1) as normalVehicle,
+            (select COUNT(id) FROM t_vehicle_info WHERE vehicle_team_id = #{id} AND vehicle_type = 2) as disabledVehicle,
+            (select COUNT(id) FROM t_vehicle_info WHERE vehicle_team_id = #{id} AND vehicle_type = 3) as recycledVehicle
+        FROM
+            t_vehicle_team_info
+        WHERE
+            is_delete = 0
+        ORDER BY sort
+    </select>
+
+    <!--更新车队列表排序-->
+    <update id="updateVehicleTeamListSort">
+        UPDATE
+        t_vehicle_team_info
+        SET
+        sort = case id
+        <foreach collection="ids" index="index" item="item">
+            WHEN #{item} THEN #{index}+1
+        </foreach>
+        END
+    </update>
+
+</mapper>
+
